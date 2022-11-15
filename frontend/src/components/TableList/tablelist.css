@@ -1,0 +1,18 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  justify-content: center;
+
+}
+
+.grid-item {
+  background-color: rgba(101, 234, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  text-align: center;
+  padding: 5rem;
+}
+
+.selection-pos {
+  width: 200px;
+  color: aqua;
+}

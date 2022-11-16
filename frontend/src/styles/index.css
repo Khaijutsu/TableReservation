@@ -14,25 +14,3 @@ code {
 }
 
 
-.home-form {
-  text-align: center;
-  width: 800px;
-  margin: 0 auto;
-  padding-top: 5rem;
- 
-}
-
-.fg {
-  width: 200px;
-}
-
-.pb {
-  padding-bottom: 1rem;
-}
-
-
-.home-img {
-  height: 300px;
-  width: 1920px;
-  min-width: none;
-}

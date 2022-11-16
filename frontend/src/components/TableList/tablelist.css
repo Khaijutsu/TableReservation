@@ -16,3 +16,8 @@
   width: 200px;
   color: aqua;
 }
+
+.calendarElement {
+  position: absolute;
+  border: 1px solid #ccc;
+}

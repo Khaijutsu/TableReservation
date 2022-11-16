@@ -1,41 +1,85 @@
-import React, { useState, useEffect } from "react";
+import './tablelist.css';
+import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from 'react';
 import {
   Row,
   Col,
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
-  DropdownItem,
-  Input,
-  Button
+  DropdownItem
 } from "reactstrap";
+import { Calendar } from 'react-date-range';
+import format from 'date-fns/format';
+import 'react-date-range/dist/styles.css'; 
+import 'react-date-range/dist/theme/default.css'; 
+import axios from 'axios';
 
-import Table from "./table";
 
-export default props => {
-  const [totalTables, setTotalTables] = useState([]);
+const TableList = ( {tables} ) => {
 
   // User's selections
   const [selection, setSelection] = useState({
     table: {
       name: null,
-      id: null
+      capacity: null,
+      location: null
     },
     date: new Date(),
     time: null,
-    location: "Any Location",
+    location: "",
     size: 0
   });
 
-  // User's booking details
-  const [booking, setBooking] = useState({
-    name: "",
-    phone: "",
-    email: ""
-  });
+  // User's information
+  const [name, setName] = useState("");
+  const [phoneNum, setPhoneNum] = useState("");
+  const [email, setEmail] = useState("");
 
-  // List of potential locations
-  const [locations] = useState(["Any Location", "Inside", "Outside"]);
+
+  // set Tables
+  // const [Tables] = useState([
+  //   tables.map((table) => {
+  //     table.name,
+  //     table.capacity,
+  //     table.location,
+  //     table.isAvailable
+  //   })
+  // ])
+
+  // set Dates
+  const refOne = useRef(null);
+  const [calendar, setCalendar] = useState('');
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setCalendar(format(new Date(), "MM/dd/yyyy"))
+    document.addEventListener("click", hideOnClickOutside, true)
+  }, [])
+  
+  const handleSelect = (date) => {
+    setCalendar(format(date, 'MM/dd/yyyy'))
+    let newSel = {
+      ...selection,
+      table: {
+        ...selection.table
+      },
+      date: date
+    };
+    setSelection(newSel);
+  }
+
+
+
+  const hideOnClickOutside = (e) => {
+    if (refOne.current && !refOne.current.contains(e.target)) {
+      setOpen(false)
+    }
+  }
+
+  // Get Dates
+
+  // set Time
   const [times] = useState([
     "9AM",
     "10AM",
@@ -47,172 +91,16 @@ export default props => {
     "4PM",
     "5PM"
   ]);
-  // Basic reservation "validation"
-  const [reservationError, setReservationError] = useState(false);
 
-  const getDate = _ => {
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
-    ];
-    const date =
-      months[selection.date.getMonth()] +
-      " " +
-      selection.date.getDate() +
-      " " +
-      selection.date.getFullYear();
-    let time = selection.time.slice(0, -2);
-    time = selection.time > 12 ? time + 12 + ":00" : time + ":00";
-    console.log(time);
-    const datetime = new Date(date + " " + time);
-    return datetime;
-  };
-
-  const getEmptyTables = _ => {
-    let tables = totalTables.filter(table => table.isAvailable);
-    return tables.length;
-  };
-
-  useEffect(() => {
-    // Check availability of tables from DB when a date and time is selected
-    if (selection.time && selection.date) {
-      (async _ => {
-        let datetime = getDate();
-        let res = await fetch("http://localhost:4000/availability", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            date: datetime
-          })
-        });
-        res = await res.json();
-        // Filter available tables with location and group size criteria
-        let tables = res.tables.filter(
-          table =>
-            (selection.size > 0 ? table.capacity >= selection.size : true) &&
-            (selection.location !== "Any Location"
-              ? table.location === selection.location
-              : true)
-        );
-        setTotalTables(tables);
-      })();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selection.time, selection.date, selection.size, selection.location]);
-
-  // Make the reservation if all details are filled out
-  const reserve = async _ => {
-    if (
-      (booking.name.length === 0) |
-      (booking.phone.length === 0) |
-      (booking.email.length === 0)
-    ) {
-      console.log("Incomplete Details");
-      setReservationError(true);
-    } else {
-      const datetime = getDate();
-      let res = await fetch("http://localhost:4000/reserve", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          ...booking,
-          date: datetime,
-          table: selection.table.id
-        })
-      });
-      res = await res.text();
-      console.log("Reserved: " + res);
-      props.setPage(2);
-    }
-  };
-
-  // Clicking on a table sets the selection state
-  const selectTable = (table_name, table_id) => {
-    setSelection({
-      ...selection,
-      table: {
-        name: table_name,
-        id: table_id
-      }
-    });
-  };
-
-  // Generate party size dropdown
-  const getSizes = _ => {
-    let newSizes = [];
-
-    for (let i = 1; i < 8; i++) {
-      newSizes.push(
-        <DropdownItem
-          key={i}
-          className="booking-dropdown-item"
-          onClick={e => {
-            let newSel = {
-              ...selection,
-              table: {
-                ...selection.table
-              },
-              size: i
-            };
-            setSelection(newSel);
-          }}
-        >
-          {i}
-        </DropdownItem>
-      );
-    }
-    return newSizes;
-  };
-
-  // Generate locations dropdown
-  const getLocations = _ => {
-    let newLocations = [];
-    locations.forEach(loc => {
-      newLocations.push(
-        <DropdownItem
-          key={loc}
-          className="booking-dropdown-item"
-          onClick={_ => {
-            let newSel = {
-              ...selection,
-              table: {
-                ...selection.table
-              },
-              location: loc
-            };
-            setSelection(newSel);
-          }}
-        >
-          {loc}
-        </DropdownItem>
-      );
-    });
-    return newLocations;
-  };
-
-  // Generate locations dropdown
-  const getTimes = _ => {
+  // Get Times
+  const getTimes = () => {
     let newTimes = [];
     times.forEach(time => {
       newTimes.push(
         <DropdownItem
           key={time}
           className="booking-dropdown-item"
-          onClick={_ => {
+          onClick={() => {
             let newSel = {
               ...selection,
               table: {
@@ -230,230 +118,179 @@ export default props => {
     return newTimes;
   };
 
-  // Generating tables from available tables state
-  const getTables = _ => {
-    console.log("Getting tables");
-    if (getEmptyTables() > 0) {
-      let tables = [];
-      totalTables.forEach(table => {
-        if (table.isAvailable) {
-          tables.push(
-            <Table
-              key={table._id}
-              id={table._id}
-              chairs={table.capacity}
-              name={table.name}
-              empty
-              selectTable={selectTable}
-            />
-          );
-        } else {
-          tables.push(
-            <Table
-              key={table._id}
-              id={table._id}
-              chairs={table.capacity}
-              name={table.name}
-              selectTable={selectTable}
-            />
-          );
-        }
-      });
-      return tables;
-    }
+  // set Location
+  const [locations] = useState([
+    "indoors",
+    "outdoors"
+  ]);
+
+   // Get Locations
+  const getLocations = () => {
+    let newLocations = [];
+    locations.forEach(location => {
+      newLocations.push(
+        <DropdownItem
+        key={location}
+        className="booking-dropdown-item"
+        onClick={() => {
+          let newSel = {
+            ...selection,
+            table: {
+              ...selection.table
+            },
+            location: location
+          };
+          setSelection(newSel);
+        }}
+        >
+          {location}
+        </DropdownItem>
+      );
+    })
+    return newLocations
   };
 
+  const getSize = () => {
+    const newSizes = [];
+    for (let i = 1; i < 8; i++) {
+      newSizes.push(
+        <DropdownItem
+          key={i}
+          className="booking-dropdown-item"
+          onClick={e => {
+            let newSel = {
+              ...selection,
+              table: {
+                ...selection.table
+              },
+              size: i
+            };
+            setSelection(newSel);
+          }}
+        >{i}</DropdownItem>
+      );
+    }
+    return newSizes;
+  };
+
+  // get Tables
+
+
+
+
+  // Post reservation to DB
+  const addToReservation = () => {
+    axios.post("http://localhost:4000/reservations", {
+      name: name,
+      phoneNumber: phoneNum,
+      email: email,
+      date: selection.date,
+      time: selection.time,
+      location: selection.location,
+      capacity: selection.size,
+      tableReservation: {
+        name: "Kobeni table",
+        capacity: 8,
+        location: "indoors"
+      }
+    });
+    
+  };
+  const [totalTables, setTotalTables] = useState([]);
+  useEffect(() => {
+    const fetchTables = async () => {
+      const res = await fetch("http://localhost:4000/tables");
+      const filterTable = await res.json();
+
+      if (res.ok) {
+        if (selection.time && selection.date) {
+          filterTable.filter((table) => 
+             (selection.size > 0 ? table.capacity >= selection.size : true) &&
+             (selection.location !== "Any location" ? table.location === selection.location : true) 
+         );
+        }
+      setTotalTables(filterTable)
+      }   
+    }
+    fetchTables()
+  }, [selection.date, selection.time, selection.location, selection.size])
 
 
   return (
     <div>
-      <Row noGutters className="text-center align-items-center pizza-cta">
-        <Col>
-          <p className="looking-for-pizza">
-            {!selection.table.id ? "Book a Table" : "Confirm Reservation"}
-            <i
-              className={
-                !selection.table.id
-                  ? "fas fa-chair pizza-slice"
-                  : "fas fa-clipboard-check pizza-slice"
-              }
-            ></i>
-          </p>
-          <p className="selected-table">
-            {selection.table.id
-              ? "You are booking table " + selection.table.name
-              : null}
-          </p>
-
-          {reservationError ? (
-            <p className="reservation-error">
-              * Please fill out all of the details.
-            </p>
-          ) : null}
-        </Col>
-      </Row>
-
-      {!selection.table.id ? (
-        <div id="reservation-stuff">
-          <Row noGutters className="text-center align-items-center">
-            <Col xs="12" sm="3">
-              <input
-                type="date"
-                required="required"
-                className="booking-dropdown"
-                value={selection.date.toISOString().split("T")[0]}
-                onChange={e => {
-                  if (!isNaN(new Date(new Date(e.target.value)))) {
-                    let newSel = {
-                      ...selection,
-                      table: {
-                        ...selection.table
-                      },
-                      date: new Date(e.target.value)
-                    };
-                    setSelection(newSel);
-                  } else {
-                    console.log("Invalid date");
-                    let newSel = {
-                      ...selection,
-                      table: {
-                        ...selection.table
-                      },
-                      date: new Date()
-                    };
-                    setSelection(newSel);
-                  }
-                }}
-              ></input>
-            </Col>
-            <Col xs="12" sm="3">
-              <UncontrolledDropdown>
-                <DropdownToggle color="none" caret className="booking-dropdown">
-                  {selection.time === null ? "Select a Time" : selection.time}
-                </DropdownToggle>
-                <DropdownMenu right className="booking-dropdown-menu">
-                  {getTimes()}
-                </DropdownMenu>
-              </UncontrolledDropdown>
-            </Col>
-            <Col xs="12" sm="3">
-              <UncontrolledDropdown>
-                <DropdownToggle color="none" caret className="booking-dropdown">
-                  {selection.location}
-                </DropdownToggle>
-                <DropdownMenu right className="booking-dropdown-menu">
-                  {getLocations()}
-                </DropdownMenu>
-              </UncontrolledDropdown>
-            </Col>
-            <Col xs="12" sm="3">
-              <UncontrolledDropdown>
-                <DropdownToggle color="none" caret className="booking-dropdown">
-                  {selection.size === 0
-                    ? "Select a Party Size"
-                    : selection.size.toString()}
-                </DropdownToggle>
-                <DropdownMenu right className="booking-dropdown-menu">
-                  {getSizes()}
-                </DropdownMenu>
-              </UncontrolledDropdown>
-            </Col>
-          </Row>
-          <Row noGutters className="tables-display">
-            <Col>
-              {getEmptyTables() > 0 ? (
-                <p className="available-tables">{getEmptyTables()} available</p>
-              ) : null}
-
-              {selection.date && selection.time ? (
-                getEmptyTables() > 0 ? (
-                  <div>
-                    <div className="table-key">
-                      <span className="empty-table"></span> &nbsp; Available
-                      &nbsp;&nbsp;
-                      <span className="full-table"></span> &nbsp; Unavailable
-                      &nbsp;&nbsp;
-                    </div>
-                    <Row noGutters>{getTables()}</Row>
-                  </div>
-                ) : (
-                  <p className="table-display-message">No Available Tables</p>
-                )
-              ) : (
-                <p className="table-display-message">
-                  Please select a date and time for your reservation.
-                </p>
-              )}
-            </Col>
-          </Row>
-        </div>
-      ) : (
-        <div id="confirm-reservation-stuff">
-          <Row
-            noGutters
-            className="text-center justify-content-center reservation-details-container"
-          >
-            <Col xs="12" sm="3" className="reservation-details">
-              <Input
-                type="text"
-                bsSize="lg"
-                placeholder="Name"
-                className="reservation-input"
-                value={booking.name}
-                onChange={e => {
-                  setBooking({
-                    ...booking,
-                    name: e.target.value
-                  });
-                }}
-              />
-            </Col>
-            <Col xs="12" sm="3" className="reservation-details">
-              <Input
-                type="text"
-                bsSize="lg"
-                placeholder="Phone Number"
-                className="reservation-input"
-                value={booking.phone}
-                onChange={e => {
-                  setBooking({
-                    ...booking,
-                    phone: e.target.value
-                  });
-                }}
-              />
-            </Col>
-            <Col xs="12" sm="3" className="reservation-details">
-              <Input
-                type="text"
-                bsSize="lg"
-                placeholder="Email"
-                className="reservation-input"
-                value={booking.email}
-                onChange={e => {
-                  setBooking({
-                    ...booking,
-                    email: e.target.value
-                  });
-                }}
-              />
-            </Col>
-          </Row>
-          <Row noGutters className="text-center">
-            <Col>
-              <Button
-                color="none"
-                className="book-table-btn"
-                onClick={_ => {
-                  reserve();
-                }}
-              >
-                Book Now
-              </Button>
-            </Col>
-          </Row>
-        </div>
-      )}
+      <div>
+        <Row>
+          <Col xs="12" sm="3" className='selection-pos'>
+            <input 
+              value= {calendar}
+              readOnly
+              onClick={() => setOpen(open => !open)}
+            />
+            <div ref={refOne}>
+              {open &&<Calendar 
+                date= {new Date()}
+                onChange= {handleSelect}
+                className="calendarElement"
+              />}
+            </div>  
+          </Col>
+          <Col xs="12" sm="3" className='selection-pos'>
+            <UncontrolledDropdown>
+              <DropdownToggle color="none" caret className="booking-dropdown">
+                {selection.time === null ? "Select a Time" : selection.time}
+              </DropdownToggle>
+              <DropdownMenu right className="booking-dropdown-menu">
+                {getTimes()}
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </Col>
+          <Col xs="12" sm="3" className='selection-pos'>
+            <UncontrolledDropdown>
+              <DropdownToggle color="none" caret className="booking-dropdown">
+                {selection.location === "" ? "Select a Location" : selection.location}
+              </DropdownToggle>
+              <DropdownMenu right className="booking-dropdown-menu">
+                {getLocations()}
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </Col>
+          <Col xs="12" sm="3" className='selection-pos'>
+            <UncontrolledDropdown>
+              <DropdownToggle color="none" caret className="booking-dropdown">
+                {selection.size === 0 ? "Select Party Size" : selection.size.toString()}
+              </DropdownToggle>
+              <DropdownMenu right className="booking-dropdown-menu">
+                {getSize()}
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </Col>
+        </Row>
+        
+        
+        <form>
+          <div >
+            <input type="text" placeholder="Name" onChange={(e) => {setName(e.target.value)}}/>
+            <input type="text" placeholder="Phone #" onChange={(e) => {setPhoneNum(e.target.value)}}/>
+            <input type="email" placeholder="email" onChange={(e) => {setEmail(e.target.value)}} />
+            <Link to="/confirmation">
+            <button onClick={addToReservation}>Make Reservation</button>
+            </Link>
+          </div>
+        </form>
+      </div>
+      <div className="grid-container">
+        {totalTables && totalTables.map((table) => (
+          <div key={table.id} className="grid-item">
+            <h3>{table.name}</h3>
+            <p>capacity: {table.capacity}</p>
+            <p>location: {table.location}</p>
+            <span>{table.isAvailable ? "Available" : ''}</span>
+            <p>{table.isAvailable ? <button onClick={table.isAvailable === false}>Reserve</button> : "Table is not Available"}</p>
+          </div>
+        ))}
+      </div>
     </div>
-  );
-};
+  )
+}
+
+export default TableList

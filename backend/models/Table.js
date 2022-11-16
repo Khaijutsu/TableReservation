@@ -11,11 +11,11 @@ const tableSchema = new mongoose.Schema({
   },
   isAvailable: {
     type: Boolean,
-    required: true
+    required: false
   },
   location: {
     type: String,
-    requried: true
+    required: true
   }
 });
 

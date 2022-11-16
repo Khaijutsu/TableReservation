@@ -7,8 +7,7 @@ const cookieParser = require("cookie-parser");
 const authRoute = require("./routes/auth");
 const tablesRoute = require("./routes/tables");
 const usersRoute = require("./routes/users");
-const availabilityRoute = require("./routes/availabilityRoute");
-const reservationRoute = require("./routes/reservationRoute");
+const reservationRoute = require("./routes/reservation");
 
 const app = express();
 dotenv.config();
@@ -39,8 +38,7 @@ app.use(cookieParser());
 app.use("/auth", authRoute);
 app.use("/tables", tablesRoute);
 app.use("/users", usersRoute);
-app.use("/availability", availabilityRoute);
-app.use("/reserve", reservationRoute);
+app.use("/reservations", reservationRoute);
 
 
 app.use((err,req,res,next) => {

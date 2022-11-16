@@ -1,6 +1,6 @@
 import React from 'react';
-import useFetch from './useFetch';
-import TableList from './TableList/TableList';
+import useFetch from '../useFetch';
+import TableList from './TableList';
 const Registration = () => {
   const { data: tables, isPending, error } = useFetch('http://localhost:4000/tables');
   

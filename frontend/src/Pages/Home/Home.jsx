@@ -9,7 +9,7 @@ const Home = () => {
       </div>
 
       <div className="home-form">
-        <h1>Welcome to Nippon Restaurant</h1>
+        <h1>Welcome to WcDonald Restaurant</h1>
         <Link to="/reserve-table">
           <button class="btn btn-primary">Reserve A Table</button>
         </Link>

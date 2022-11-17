@@ -1,0 +1,27 @@
+.home-form {
+  text-align: center;
+  margin: 0 auto;
+  padding-top: 5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.home-img {
+  height: 300px;
+  width: 1920px;
+  min-width: none;
+}
+
+.user-link {
+  padding: 2.5rem;
+  word-spacing: 10px;
+  justify-content: space-between;
+}
+
+.mr {
+  margin-right: 16px;
+}
+
+.ml {
+  margin-left: 16px;
+}

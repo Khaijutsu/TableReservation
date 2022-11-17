@@ -25,3 +25,7 @@
   cursor: pointer;
   color: #003580;
 }
+
+.button-margin {
+  margin-left: 16px;
+}

@@ -4,8 +4,21 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 
+
 const register = async (req,res,next) => {
   try {
+    const userNameExist = await User.findOne({username:req.body.username});
+    if (userNameExist) {
+      return next(createError(410, "Username already taken, try again"))
+    }
+    const emailExist = await User.findOne({email:req.body.email});
+    if (emailExist) {
+      return next(createError(411, "Email already in use, try again"))
+    }
+  
+    // if (!validator.isStrongPassword(isPasswordStrong,[{minLength:6}])) {
+    //    return next(createError(412,'Password not strong enough'))
+    // }
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(req.body.password, salt);
 

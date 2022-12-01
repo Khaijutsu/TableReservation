@@ -1,21 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
-  DropdownItem,
-  Input,
-  Button,
+  DropdownItem
 } from "reactstrap";
+// Input,
+// Button,
 import "./tablelist.css";
 import Table from "./table";
 import axios from "axios";
+import { AuthContext } from "../../context/AuthContext"
+
 import { useNavigate } from "react-router-dom";
 
 const ReserveTable = () => {
   const navigate = useNavigate();
   const [totalTables, setTotalTables] = useState([]);
-
+  const { user } = useContext(AuthContext);
   // User's selections
   const [selection, setSelection] = useState({
     table: {
@@ -67,14 +69,25 @@ const ReserveTable = () => {
       "December",
     ];
     const date =
-      months[selection.date.getMonth()] +
+      months[selection.date.getUTCMonth()] +
       " " +
-      selection.date.getDate() +
+      selection.date.getUTCDate() +
       " " +
-      selection.date.getFullYear();
+      selection.date.getUTCFullYear();
     let time = selection.time.slice(0, -2);
     time = selection.time > 12 ? time + 12 + ":00" : time + ":00";
-    console.log(time);
+    if (user) {
+    if (date === "January 1 " + selection.date.getUTCFullYear() ) {console.log("New Years"); }
+    else if (date === "July 4 " + selection.date.getUTCFullYear()) { console.log("Independence Day"); }
+    else if (date === "November 11 " + selection.date.getUTCFullYear()) { console.log("Veterans Day"); }
+    else if (date === "December 25 " + selection.date.getUTCFullYear()) { console.log("Christmas Day"); }
+    else if (date === "January 16 " + selection.date.getUTCFullYear()) { console.log("MLK Day"); }
+    else if (date === "May 29 " + selection.date.getUTCFullYear()) { console.log("Memorial Day"); }
+    else if (date === "September 4 " + selection.date.getUTCFullYear()) { console.log("Labor Day"); }
+    else if (date === "October 9 " + selection.date.getUTCFullYear()) { console.log("Columbus Day"); }
+    else if (date === "November 24 " + selection.date.getUTCFullYear()) { console.log("Thanksgiving Day"); }
+    }
+
     const datetime = new Date(date + " " + time);
     return datetime;
   };
@@ -93,19 +106,32 @@ const ReserveTable = () => {
       let res = await fetch("http://localhost:4000/reservations", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...booking,
           date: datetime,
-          table: selection.table.id
-        })
+          table: selection.table.id,
+        }),
       });
       res = await res.text();
       console.log("Reserved: " + res);
       navigate("/confirmation");
     }
   };
+
+  const endPage = () => {
+    if (
+      (selection.time === "Select a Time") ||
+      (selection.location === "Any Location") ||
+      (selection.size === "Select a Party Size")
+    ) {
+      console.log("Incomplete Details");
+      setReservationError(true);
+    } else {
+    navigate("/confirmation")
+    }
+  }
 
   // Clicking on a table sets the selection state
   const selectTable = (table_name, table_id) => {
@@ -200,21 +226,21 @@ const ReserveTable = () => {
   useEffect(() => {
     // Check availability of tables from DB when a date and time is selected
     if (selection.time && selection.date) {
-      (async _ => {
+      (async (_) => {
         let datetime = getDate();
         let res = await fetch("http://localhost:4000/availiability", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            date: datetime
-          })
+            date: datetime,
+          }),
         });
         res = await res.json();
         // Filter available tables with location and group size criteria
         let tables = res.tables.filter(
-          table =>
+          (table) =>
             (selection.size > 0 ? table.capacity >= selection.size : true) &&
             (selection.location !== "Any Location"
               ? table.location === selection.location
@@ -266,186 +292,75 @@ const ReserveTable = () => {
 
   return (
     <div>
-       <div className="text-center align-items-center">
-        <div>
-          <p>
-            {!selection.table.id ? "Book a Table" : "Confirm Reservation"}
-          </p>
-          <p className="selected-table">
-            {selection.table.id
-              ? "You are booking table " + selection.table.name
-              : null}
-          </p>
-
-          {reservationError ? (
-            <p className="reservation-error">
-              * Please fill out all of the details.
-            </p>
-          ) : null}
+      <div>
+        <div className="selectionDropDown">
+          <div xs="12" sm="3">
+            <input
+              type="date"
+              required="required"
+              className="booking-dropdown"
+              value={selection.date.toISOString().split("T")[0]}
+              onChange={(e) => {
+                if (!isNaN(new Date(new Date(e.target.value)))) {
+                  let newSel = {
+                    ...selection,
+                    table: {
+                      ...selection.table,
+                    },
+                    date: new Date(e.target.value),
+                  };
+                  setSelection(newSel);
+                } else {
+                  console.log("Invalid date");
+                  let newSel = {
+                    ...selection,
+                    table: {
+                      ...selection.table,
+                    },
+                    date: new Date(),
+                  };
+                  setSelection(newSel);
+                }
+              }}
+            ></input>
+          </div>
+          <div xs="12" sm="3">
+            <UncontrolledDropdown>
+              <DropdownToggle color="none" caret className="booking-dropdown">
+                {selection.time === null ? "Select a Time" : selection.time}
+              </DropdownToggle>
+              <DropdownMenu right className="booking-dropdown-menu">
+                {getTimes()}
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </div>
+          <div xs="12" sm="3">
+            <UncontrolledDropdown>
+              <DropdownToggle color="none" caret className="booking-dropdown">
+                {selection.location}
+              </DropdownToggle>
+              <DropdownMenu right className="booking-dropdown-menu">
+                {getLocations()}
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </div>
+          <div xs="12" sm="3">
+            <UncontrolledDropdown>
+              <DropdownToggle color="none" caret className="booking-dropdown">
+                {selection.size === 0
+                  ? "Select a Party Size"
+                  : selection.size.toString()}
+              </DropdownToggle>
+              <DropdownMenu right className="booking-dropdown-menu">
+                {getSizes()}
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </div>
         </div>
       </div>
-      {!selection.table.id ? (
-        <div>
-          <div className="selectionDropDown">
-            <div xs="12" sm="3">
-              <input
-                type="date"
-                required="required"
-                className="booking-dropdown"
-                value={selection.date.toISOString().split("T")[0]}
-                onChange={(e) => {
-                  if (!isNaN(new Date(new Date(e.target.value)))) {
-                    let newSel = {
-                      ...selection,
-                      table: {
-                        ...selection.table,
-                      },
-                      date: new Date(e.target.value),
-                    };
-                    setSelection(newSel);
-                  } else {
-                    console.log("Invalid date");
-                    let newSel = {
-                      ...selection,
-                      table: {
-                        ...selection.table,
-                      },
-                      date: new Date(),
-                    };
-                    setSelection(newSel);
-                  }
-                }}
-              ></input>
-            </div>
-            <div xs="12" sm="3">
-              <UncontrolledDropdown>
-                <DropdownToggle color="none" caret className="booking-dropdown">
-                  {selection.time === null ? "Select a Time" : selection.time}
-                </DropdownToggle>
-                <DropdownMenu right className="booking-dropdown-menu">
-                  {getTimes()}
-                </DropdownMenu>
-              </UncontrolledDropdown>
-            </div>
-            <div xs="12" sm="3">
-              <UncontrolledDropdown>
-                <DropdownToggle color="none" caret className="booking-dropdown">
-                  {selection.location}
-                </DropdownToggle>
-                <DropdownMenu right className="booking-dropdown-menu">
-                  {getLocations()}
-                </DropdownMenu>
-              </UncontrolledDropdown>
-            </div>
-            <div xs="12" sm="3">
-              <UncontrolledDropdown>
-                <DropdownToggle color="none" caret className="booking-dropdown">
-                  {selection.size === 0
-                    ? "Select a Party Size"
-                    : selection.size.toString()}
-                </DropdownToggle>
-                <DropdownMenu right className="booking-dropdown-menu">
-                  {getSizes()}
-                </DropdownMenu>
-              </UncontrolledDropdown>
-            </div>
-          </div>
-          <div noGutters className="tables-display">
-            <div>
-              {selection.date && selection.time ? (
-                getEmptyTables() > 0 ? (
-                  <div>
-                    {getEmptyTables() > 0 ? (
-                      <p className="available-tables">
-                        {getEmptyTables()} available
-                      </p>
-                    ) : null}
-                    <div className="table-key">
-                      <span className="empty-table"></span> &nbsp; Available
-                      &nbsp;&nbsp;
-                      <span className="full-table"></span> &nbsp; Unavailable
-                      &nbsp;&nbsp;
-                    </div>
-                    <div noGutters>{getTables()}</div>
-                  </div>
-                ) : (
-                  <p className="table-display-message">No Available Tables</p>
-                )
-              ) : (
-                <p className="table-display-message">
-                  Please select a date and time for your reservation.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div id="confirm-reservation-stuff">
-          <div
-            noGutters
-            className="text-center justify-content-center reservation-details-container"
-          >
-            <div xs="12" sm="3" className="reservation-details">
-              <Input
-                type="text"
-                bsSize="lg"
-                placeholder="Name"
-                className="reservation-input"
-                value={booking.name}
-                onChange={(e) => {
-                  setBooking({
-                    ...booking,
-                    name: e.target.value,
-                  });
-                }}
-              />
-            </div>
-            <div xs="12" sm="3" className="reservation-details">
-              <Input
-                type="text"
-                bsSize="lg"
-                placeholder="Phone Number"
-                className="reservation-input"
-                value={booking.phone}
-                onChange={(e) => {
-                  setBooking({
-                    ...booking,
-                    phone: e.target.value,
-                  });
-                }}
-              />
-            </div>
-            <div xs="12" sm="3" className="reservation-details">
-              <Input
-                type="text"
-                bsSize="lg"
-                placeholder="Email"
-                className="reservation-input"
-                value={booking.email}
-                onChange={(e) => {
-                  setBooking({
-                    ...booking,
-                    email: e.target.value,
-                  });
-                }}
-              />
-            </div>
-          </div>
-          <div noGutters className="text-center">
-            <div>
-              <Button
-                color="none"
-                className="book-table-btn"
-                onClick={(_) => {
-                  reserve();
-                }}
-              >
-                Book Now
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <div>
+        <button onClick={(endPage)}>Confirm</button>
+      </div>
     </div>
   );
 };

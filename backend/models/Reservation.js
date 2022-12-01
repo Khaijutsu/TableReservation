@@ -1,27 +1,16 @@
-const mongoose = require("mongoose");
+var mongoose = require("mongoose");
 
-const reservationSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  },
-  phone: {
-    type: String,
-    required: true
-  },
-  email: {
-    type: String,
-    required: true
-  }
+var reservationSchema = new mongoose.Schema({
+  name: String,
+  phone: String,
+  email: String
+});
+// var Reservation = mongoose.model("Reservation", reservationSchema);
 
-}, {timestamps: true});
+// module.exports.model = Reservation;
+// module.exports.schema = reservationSchema;
 
-var Reservation = mongoose.model("reservations", reservationSchema);
-
-module.exports.model = Reservation;
-module.exports.schema = reservationSchema;
-
-// module.exports = mongoose.model("reservations", reservationSchema);
+module.exports = mongoose.model("reservations", reservationSchema);
 
 
 

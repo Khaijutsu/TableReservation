@@ -9,19 +9,23 @@ const Navbar = () => {
   const { logout } = useLogout();
   const handleClick = () => {
     logout()
+    
   }
 
   return (
     <div className="navbar">
       <div className="navContainer">
         <Link to="/" style={{ color: "inherit", textDecoration: "none"}}>
-          <span className="logo">Nippon</span>
+          <span className="logo">WcDonald</span>
         </Link>
         {user ? <div>
-          {user.username}
-          <button onClick={handleClick} className="button-margin">Log out</button>
+           <Link to="/reserve-table"><button className="navButton">Reserve Table</button></Link>
+           <Link to="/" onClick={handleClick}><button className="navButton">Log out</button></Link>
+           <Link to="/profile"><button className="navButton">Profile</button></Link>
+          <span className="button-margin">{user.username}</span>
           </div> : (
           <div className="navItems">
+            <Link to="/reserve-table"><button className="navButton">Reserve Table</button></Link>
             <Link to="/register-user"><button className="navButton">Sign Up</button></Link>
             <Link to="/login"><button className="navButton">Login</button></Link>
           </div>

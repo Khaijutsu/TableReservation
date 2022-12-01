@@ -1,38 +1,28 @@
 import React, { useState, useEffect } from "react";
-import {
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  Input,
-  Button,
-} from "reactstrap";
+import { UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Input, Button } from "reactstrap";
 import "./tablelist.css";
 import Table from "./table";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
-const ReserveTable = () => {
-  const navigate = useNavigate();
+export default props => {
   const [totalTables, setTotalTables] = useState([]);
 
   // User's selections
   const [selection, setSelection] = useState({
     table: {
       name: null,
-      id: null,
+      id: null
     },
     date: new Date(),
     time: null,
     location: "Any Location",
-    size: 0,
+    size: 0
   });
 
   // User's booking details
   const [booking, setBooking] = useState({
     name: "",
     phone: "",
-    email: "",
+    email: ""
   });
 
   // List of potential locations
@@ -46,12 +36,12 @@ const ReserveTable = () => {
     "2PM",
     "3PM",
     "4PM",
-    "5PM",
+    "5PM"
   ]);
   // Basic reservation "validation"
   const [reservationError, setReservationError] = useState(false);
 
-  const getDate = () => {
+  const getDate = _ => {
     const months = [
       "January",
       "February",
@@ -64,7 +54,7 @@ const ReserveTable = () => {
       "September",
       "October",
       "November",
-      "December",
+      "December"
     ];
     const date =
       months[selection.date.getMonth()] +
@@ -79,122 +69,9 @@ const ReserveTable = () => {
     return datetime;
   };
 
-  // Make the reservation if all details are filled out
-  const reserve = async () => {
-    if (
-      (booking.name.length === 0) |
-      (booking.phone.length === 0) |
-      (booking.email.length === 0)
-    ) {
-      console.log("Incomplete Details");
-      setReservationError(true);
-    } else {
-      const datetime = getDate();
-      let res = await fetch("http://localhost:4000/reservations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          ...booking,
-          date: datetime,
-          table: selection.table.id
-        })
-      });
-      res = await res.text();
-      console.log("Reserved: " + res);
-      navigate("/confirmation");
-    }
-  };
-
-  // Clicking on a table sets the selection state
-  const selectTable = (table_name, table_id) => {
-    setSelection({
-      ...selection,
-      table: {
-        name: table_name,
-        id: table_id,
-      },
-    });
-  };
-
-  // Generate party size dropdown
-  const getSizes = () => {
-    let newSizes = [];
-
-    for (let i = 2; i < 10; i += 2) {
-      newSizes.push(
-        <DropdownItem
-          key={i}
-          className="booking-dropdown-item"
-          onClick={(e) => {
-            let newSel = {
-              ...selection,
-              table: {
-                ...selection.table,
-              },
-              size: i,
-            };
-            setSelection(newSel);
-          }}
-        >
-          {i}
-        </DropdownItem>
-      );
-    }
-    return newSizes;
-  };
-
-  // Generate locations dropdown
-  const getLocations = () => {
-    let newLocations = [];
-    locations.forEach((loc) => {
-      newLocations.push(
-        <DropdownItem
-          key={loc}
-          className="booking-dropdown-item"
-          onClick={() => {
-            let newSel = {
-              ...selection,
-              table: {
-                ...selection.table,
-              },
-              location: loc,
-            };
-            setSelection(newSel);
-          }}
-        >
-          {loc}
-        </DropdownItem>
-      );
-    });
-    return newLocations;
-  };
-
-  // Generate locations dropdown
-  const getTimes = () => {
-    let newTimes = [];
-    times.forEach((time) => {
-      newTimes.push(
-        <DropdownItem
-          key={time}
-          className="booking-dropdown-item"
-          onClick={() => {
-            let newSel = {
-              ...selection,
-              table: {
-                ...selection.table,
-              },
-              time: time,
-            };
-            setSelection(newSel);
-          }}
-        >
-          {time}
-        </DropdownItem>
-      );
-    });
-    return newTimes;
+  const getEmptyTables = _ => {
+    let tables = totalTables.filter(table => table.isAvailable);
+    return tables.length;
   };
 
   useEffect(() => {
@@ -226,17 +103,114 @@ const ReserveTable = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selection.time, selection.date, selection.size, selection.location]);
 
-  const getEmptyTables = () => {
-    let tables = totalTables.filter((table) => table.isAvailable);
-    return tables.length;
+  // Make the reservation if all details are filled out
+  const reserve = async _ => {
+    if (
+      (booking.name.length === 0) |
+      (booking.phone.length === 0) |
+      (booking.email.length === 0)
+    ) {
+      console.log("Incomplete Details");
+      setReservationError(true);
+    } 
+  };
+
+  // Clicking on a table sets the selection state
+  const selectTable = (table_name, table_id) => {
+    setSelection({
+      ...selection,
+      table: {
+        name: table_name,
+        id: table_id
+      }
+    });
+  };
+
+  // Generate party size dropdown
+  const getSizes = _ => {
+    let newSizes = [];
+
+    for (let i = 1; i < 8; i++) {
+      newSizes.push(
+        <DropdownItem
+          key={i}
+          className="booking-dropdown-item"
+          onClick={e => {
+            let newSel = {
+              ...selection,
+              table: {
+                ...selection.table
+              },
+              size: i
+            };
+            setSelection(newSel);
+          }}
+        >
+          {i}
+        </DropdownItem>
+      );
+    }
+    return newSizes;
+  };
+
+  // Generate locations dropdown
+  const getLocations = _ => {
+    let newLocations = [];
+    locations.forEach(loc => {
+      newLocations.push(
+        <DropdownItem
+          key={loc}
+          className="booking-dropdown-item"
+          onClick={_ => {
+            let newSel = {
+              ...selection,
+              table: {
+                ...selection.table
+              },
+              location: loc
+            };
+            setSelection(newSel);
+          }}
+        >
+          {loc}
+        </DropdownItem>
+      );
+    });
+    return newLocations;
+  };
+
+  // Generate locations dropdown
+  const getTimes = _ => {
+    let newTimes = [];
+    times.forEach(time => {
+      newTimes.push(
+        <DropdownItem
+          key={time}
+          className="booking-dropdown-item"
+          onClick={_ => {
+            let newSel = {
+              ...selection,
+              table: {
+                ...selection.table
+              },
+              time: time
+            };
+            setSelection(newSel);
+          }}
+        >
+          {time}
+        </DropdownItem>
+      );
+    });
+    return newTimes;
   };
 
   // Generating tables from available tables state
-  const getTables = () => {
+  const getTables = _ => {
     console.log("Getting tables");
     if (getEmptyTables() > 0) {
       let tables = [];
-      totalTables.forEach((table) => {
+      totalTables.forEach(table => {
         if (table.isAvailable) {
           tables.push(
             <Table
@@ -266,10 +240,17 @@ const ReserveTable = () => {
 
   return (
     <div>
-       <div className="text-center align-items-center">
+      <div noGutters className="text-center align-items-center pizza-cta">
         <div>
-          <p>
+          <p className="looking-for-pizza">
             {!selection.table.id ? "Book a Table" : "Confirm Reservation"}
+            <i
+              className={
+                !selection.table.id
+                  ? "fas fa-chair pizza-slice"
+                  : "fas fa-clipboard-check pizza-slice"
+              }
+            ></i>
           </p>
           <p className="selected-table">
             {selection.table.id
@@ -284,23 +265,24 @@ const ReserveTable = () => {
           ) : null}
         </div>
       </div>
+
       {!selection.table.id ? (
-        <div>
-          <div className="selectionDropDown">
+        <div id="reservation-stuff">
+          <div noGutters className="text-center align-items-center">
             <div xs="12" sm="3">
               <input
                 type="date"
                 required="required"
                 className="booking-dropdown"
                 value={selection.date.toISOString().split("T")[0]}
-                onChange={(e) => {
+                onChange={e => {
                   if (!isNaN(new Date(new Date(e.target.value)))) {
                     let newSel = {
                       ...selection,
                       table: {
-                        ...selection.table,
+                        ...selection.table
                       },
-                      date: new Date(e.target.value),
+                      date: new Date(e.target.value)
                     };
                     setSelection(newSel);
                   } else {
@@ -308,9 +290,9 @@ const ReserveTable = () => {
                     let newSel = {
                       ...selection,
                       table: {
-                        ...selection.table,
+                        ...selection.table
                       },
-                      date: new Date(),
+                      date: new Date()
                     };
                     setSelection(newSel);
                   }
@@ -352,14 +334,13 @@ const ReserveTable = () => {
           </div>
           <div noGutters className="tables-display">
             <div>
+              {getEmptyTables() > 0 ? (
+                <p className="available-tables">{getEmptyTables()} available</p>
+              ) : null}
+
               {selection.date && selection.time ? (
                 getEmptyTables() > 0 ? (
                   <div>
-                    {getEmptyTables() > 0 ? (
-                      <p className="available-tables">
-                        {getEmptyTables()} available
-                      </p>
-                    ) : null}
                     <div className="table-key">
                       <span className="empty-table"></span> &nbsp; Available
                       &nbsp;&nbsp;
@@ -392,10 +373,10 @@ const ReserveTable = () => {
                 placeholder="Name"
                 className="reservation-input"
                 value={booking.name}
-                onChange={(e) => {
+                onChange={e => {
                   setBooking({
                     ...booking,
-                    name: e.target.value,
+                    name: e.target.value
                   });
                 }}
               />
@@ -407,10 +388,10 @@ const ReserveTable = () => {
                 placeholder="Phone Number"
                 className="reservation-input"
                 value={booking.phone}
-                onChange={(e) => {
+                onChange={e => {
                   setBooking({
                     ...booking,
-                    phone: e.target.value,
+                    phone: e.target.value
                   });
                 }}
               />
@@ -422,10 +403,10 @@ const ReserveTable = () => {
                 placeholder="Email"
                 className="reservation-input"
                 value={booking.email}
-                onChange={(e) => {
+                onChange={e => {
                   setBooking({
                     ...booking,
-                    email: e.target.value,
+                    email: e.target.value
                   });
                 }}
               />
@@ -436,7 +417,7 @@ const ReserveTable = () => {
               <Button
                 color="none"
                 className="book-table-btn"
-                onClick={(_) => {
+                onClick={_ => {
                   reserve();
                 }}
               >
@@ -449,5 +430,3 @@ const ReserveTable = () => {
     </div>
   );
 };
-
-export default ReserveTable;

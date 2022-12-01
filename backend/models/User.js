@@ -19,6 +19,11 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  mailingAddress: String,
+  billingAddress: String,
+  dinerNumber: Number,
+  points: Number,
+  paymentMethod: String,
 }, {timestamps: true});
 
 module.exports = mongoose.model("users", userSchema);

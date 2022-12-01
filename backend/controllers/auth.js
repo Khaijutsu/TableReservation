@@ -2,7 +2,7 @@ const User = require("../models/User");
 const createError = require("../utils/error");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
+const validator = require("validator");
 
 
 const register = async (req,res,next) => {
@@ -13,19 +13,24 @@ const register = async (req,res,next) => {
     }
     const emailExist = await User.findOne({email:req.body.email});
     if (emailExist) {
-      return next(createError(411, "Email already in use, try again"))
+      return next(createError(411, "Email already taken, try again"))
     }
-  
-    // if (!validator.isStrongPassword(isPasswordStrong,[{minLength:6}])) {
-    //    return next(createError(412,'Password not strong enough'))
-    // }
+    
+    if (!validator.isStrongPassword(req.body.password)) {
+       return next(createError(412,'Password not strong enough'))
+    }
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(req.body.password, salt);
 
     const newUser = new User({
-      username:req.body.username,
-      email:req.body.email,
-      password:hash,
+      username: req.body.username,
+      email: req.body.email,
+      password: hash,
+      mailingAddress: req.body.mailingAddress,
+      billingAddress: req.body.billingAddress,
+      dinerNumber: Math.floor(Math.random() * 100),
+      points: Math.floor(Math.random() * 1000),
+      paymentMethod: req.body.paymentMethod
     })
     await newUser.save();
     res.status(200).send("User has been created.")

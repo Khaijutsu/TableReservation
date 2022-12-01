@@ -21,3 +21,166 @@
   position: absolute;
   border: 1px solid #ccc;
 }
+
+.book-table-btn:hover {
+  color: #e74c3c;
+  background-color: white !important;
+  border: 2px solid black !important;
+}
+
+@media (min-width: 768px) {
+  .book-table-btn {
+    font-size: 1.4rem;
+    padding: 0.5% 5%;
+  }
+}
+
+.selected-table {
+  font-size: 1.25rem;
+  padding-bottom: 2%;
+}
+
+.selectionDropDown {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  padding: 1rem;
+}
+
+.booking-dropdown {
+  width: 85%;
+  padding: 4% 0;
+  background-color: #2870d4;
+  color: white;
+  margin: 2% 0;
+  font-family: "Roboto";
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  width: 300px;
+}
+.booking-dropdown:hover {
+  background-color: #2870d4;
+  color: white;
+}
+.booking-dropdown:focus {
+  outline: none;
+  box-shadow: none;
+}
+.booking-dropdown-menu {
+  outline: none;
+}
+.booking-dropdown-item:hover {
+  background-color: white;
+}
+.booking-dropdown-item:active {
+  background-color: white;
+  color: black;
+}
+
+@media (min-width: 768px) {
+  .booking-dropdown {
+    font-size: 1.2rem;
+  }
+}
+.table-display-message {
+  padding: 2% 0;
+  text-align: center;
+  font-size: 1.3rem;
+  color: white;
+}
+
+.tables-display {
+  background-color: #2870d4;
+  margin: 10% 2%;
+  padding: 3% 5%;
+  border-color: black;
+  border-radius: 25px;
+}
+
+@media (min-width: 768px) {
+  .tables-display {
+    margin: 6% 2.5%;
+  }
+}
+.table-key {
+  padding-top: 1%;
+  padding-bottom: 4.5%;
+  color: white;
+}
+
+  .available-tables {
+    color: white;
+    font-size: 1.2rem;
+    font-family: Roboto, sans-serif;
+  }
+
+.table-container {
+  margin: 0 1%;
+}
+
+.table {
+  background-color: rgba(245, 246, 250, 0.4);
+  padding: 15px;
+  border-radius: 25px;
+  min-width: 40px;
+}
+
+.selectable-table:hover {
+  cursor: pointer;
+}
+.selectable-table:hover-row {
+  padding: 5px;
+}
+
+.full-table {
+  background-color: #fff;
+  border: solid 2px red;
+  border-radius: 50%;
+  padding: 1px 10px;
+  margin: 3px;
+}
+
+.empty-table {
+  background-color: white;
+  border: solid 2px black;
+  border-radius: 50%;
+  padding: 1px 10px;
+  margin: 3px;
+}
+
+.table-name {
+  color: white;
+  font-size: 0.8rem;
+  padding-top: 15px;
+  font-family: Roboto, sans-serif;
+}
+
+.reservation-details-container {
+  padding: 0 4%;
+  padding-bottom: 5%;
+}
+
+.reservation-details {
+  margin: 0 2%;
+  margin-bottom: 5%;
+}
+
+@media (min-width: 768px) {
+  .reservation-details {
+    margin-bottom: 0;
+  }
+}
+.reservation-input:focus {
+  border-color: black;
+  box-shadow: 0 0;
+}
+
+.reservation-error {
+  color: #c0392b;
+  font-size: 1.1rem;
+  padding-bottom: 3%;
+}
+
+

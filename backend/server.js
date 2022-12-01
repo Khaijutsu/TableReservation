@@ -8,6 +8,7 @@ const authRoute = require("./routes/auth");
 const tablesRoute = require("./routes/tables");
 const usersRoute = require("./routes/users");
 const reservationRoute = require("./routes/reservation");
+const availabilityRoute = require("./routes/availability");
 
 const app = express();
 dotenv.config();
@@ -39,6 +40,7 @@ app.use("/auth", authRoute);
 app.use("/tables", tablesRoute);
 app.use("/users", usersRoute);
 app.use("/reservations", reservationRoute);
+app.use("/availiability", availabilityRoute);
 
 
 app.use((err,req,res,next) => {

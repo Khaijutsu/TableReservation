@@ -1,0 +1,106 @@
+{
+  "tables": [
+    {
+      "name": "Table 1",
+      "capacity": 2,
+      "isAvailable": true,
+      "location": "Inside"
+    },
+    {
+      "name": "Table 2",
+      "capacity": 4,
+      "isAvailable": true,
+      "location": "Outside"
+    },
+    {
+      "name": "Table 3",
+      "capacity": 6,
+      "isAvailable": true,
+      "location": "Inside"
+    },
+    {
+      "name": "Table 4",
+      "capacity": 8,
+      "isAvailable": true,
+      "location": "Outside"
+    },
+    {
+      "name": "Table 5",
+      "capacity": 2,
+      "isAvailable": true,
+      "location": "Inside"
+    },
+    {
+      "name": "Table 6",
+      "capacity": 4,
+      "isAvailable": true,
+      "location": "Outside"
+    },
+    {
+      "name": "Table 7",
+      "capacity": 6,
+      "isAvailable": true,
+      "location": "Inside"
+    },
+    {
+      "name": "Table 8",
+      "capacity": 8,
+      "isAvailable": true,
+      "location": "Inside"
+    },
+    {
+      "name": "Table 9",
+      "capacity": 2,
+      "isAvailable": true,
+      "location": "Inside"
+    },
+    {
+      "name": "Table 10",
+      "capacity": 4,
+      "isAvailable": true,
+      "location": "Outside"
+    },
+    {
+      "name": "Table 11",
+      "capacity": 6,
+      "isAvailable": true,
+      "location": "Inside"
+    },
+    {
+      "name": "Table 12",
+      "capacity": 2,
+      "isAvailable": true,
+      "location": "Outside"
+    },
+    {
+      "name": "Table 13",
+      "capacity": 4,
+      "isAvailable": true,
+      "location": "Inside"
+    },
+    {
+      "name": "Table 14",
+      "capacity": 6,
+      "isAvailable": true,
+      "location": "Outside"
+    },
+    {
+      "name": "Table 15",
+      "capacity": 2,
+      "isAvailable": true,
+      "location": "Inside"
+    },
+    {
+      "name": "Table 16",
+      "capacity": 4,
+      "isAvailable": true,
+      "location": "Outside"
+    },
+    {
+      "name": "Table 17",
+      "capacity": 6,
+      "isAvailable": true,
+      "location": "Inside"
+    }
+  ]
+}
